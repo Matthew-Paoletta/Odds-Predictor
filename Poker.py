@@ -81,8 +81,6 @@ def evaluate(hand):
         OP = 0
     return [SF, FK, FH, FL, ST, TK, TP, OP, HC]
 def compare(hand1, hand2):
-    count1 = 0
-    count2 = 0
     for i in range(len(hand1)):
         if (hand1[i]!=hand2[i]):
             
@@ -111,21 +109,27 @@ def compare(hand1, hand2):
                 return None
             break
             
+            
 def find_best_hand(community, hole):
-    best_hand = evaluate(community + hole)
+    best_eval = evaluate(community + hole)
+    best_hand = community[:4] + hole
     if len(community)==0:
-        return evaluate(hole)
+        return hole
     elif len(community)==3:
         return best_hand
     elif len(community)==4:
-        print(community[1:] + hole)
-        return compare(best_hand, evaluate(community[1:] + hole))
+        if best_hand == compare(best_eval, evaluate(community[1:] + hole)):
+            return best_hand
+        return community[1:] + hole
     elif len(community) == 5:
-        return compare(compare(best_hand, evaluate(community[1:4] + hole)), evaluate(community[2:] + hole))
+        if (community + hole) == compare(best_eval, evaluate(community[1:] + hole)):
+            return community + hole
+        elif (community[1:4] + hole) == compare(best_eval, evaluate(community[1:4] + hole)):
+            return community[1:4] + hole
+        return community[2:] + hole
     else:
         return None
-            
-            
+                   
       
 def main():
     deck = [('A', 'S'), ('K', 'S'), ('Q', 'S'), ('J', 'S'), ('T', 'S'), ('9', 'S'), ('8', 'S'), ('7', 'S'), ('6', 'S'), ('5', 'S'), ('4', 'S'), ('3', 'S'), ('2', 'D'), ('A', 'D'), ('K', 'D'), ('Q', 'D'), ('J', 'D'), ('T', 'D'), ('9', 'D'), ('8', 'D'), ('7', 'D'), ('6', 'D'), ('5', 'D'), ('4', 'D'), ('3', 'D'), ('2', 'D'), ('A', 'C'), ('K', 'C'), ('Q', 'C'), ('J', 'C'), ('T', 'C'), ('9', 'C'), ('8', 'C'), ('7', 'C'), ('6', 'C'), ('5', 'C'), ('4', 'C'), ('3', 'C'), ('2', 'C'), ('A', 'H'), ('K', 'H'), ('Q', 'H'), ('J', 'H'), ('T', 'H'), ('9', 'H'), ('8', 'H'), ('7', 'H'), ('6', 'H'), ('5', 'H'), ('4', 'H'), ('3', 'H'), ('2', 'H')]
@@ -134,50 +138,25 @@ def main():
     board = []
     ex1 = [('A', 'S'), ('A', 'D'), ('J', 'S'), ('K', 'S'), ('K', 'S')]
     ex2 = [('A', 'S'), ('J', 'C'), ('K', 'D'), ('T', 'H'), ('Q', 'S')]
-    print("Preflop:")
-    print(board)
-    print("Player 1 Hand:")
-    print(p1)
-    print("Player 1 Best Hand:")
-    print(find_best_hand(board, p1))
-    print("Player 2 Hand: ")
-    print(p2)
-    print("Player 2 Best Hand:")
-    print(find_best_hand(board, p2))
-    print("\n\nFlop:")
-    board += deal(deck, 3)
-    print(board)
-    print("Player 1 Hand:")
-    print(p1)
-    print("Player 1 Best Hand:")
-    print(find_best_hand(board, p1))
-    print("Player 2 Hand: ")
-    print(p2)
-    print("Player 2 Best Hand:")
-    print(find_best_hand(board, p2))
-    print("\n\nTurn:")
-    board += deal(deck, 1)
-    print(board)
-    print("Player 1 Hand:")
-    print(p1)
-    print("Player 1 Best Hand:")
-    print(find_best_hand(board, p1))
-    print("Player 2 Hand: ")
-    print(p2)
-    print("Player 2 Best Hand:")
-    print(find_best_hand(board, p2))
-    print("\n\nRiver:")
-    board += deal(deck, 1)
-    print(board)
-    print("Player 1 Hand:")
-    print(p1)
-    print("Player 1 Best Hand:")
-    print(find_best_hand(board, p1))
-    print("Player 2 Hand: ")
-    print(p2)
-    print("Player 2 Best Hand:")
-    print(find_best_hand(board, p2))
-    
+    stages = ["Preflop:", "Flop", "Turn", "River"]
+    for i in range(len(stages)):
+        print("\n\n"+stages[i])
+        print(board)
+        print("Player 1 Hand:")
+        print(p1)
+        print("Player 1 Best Hand:")
+        print(find_best_hand(board, p1))
+        print("Player 2 Hand: ")
+        print(p2)
+        print("Player 2 Best Hand:")
+        print(find_best_hand(board, p2))
+        if i == 0:
+            board += deal(deck, 3)
+        elif i < 3:
+            board += deal(deck, 1)
+        else:
+            break
+
     
     
     '''ev_ex1 = evaluate(ex1)
