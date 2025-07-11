@@ -14,7 +14,8 @@ def deal(choices, cards):
 def reshuffle_deck():
     deck = [('A', 'S'), ('K', 'S'), ('Q', 'S'), ('J', 'S'), ('T', 'S'), ('9', 'S'), ('8', 'S'), ('7', 'S'), ('6', 'S'), ('5', 'S'), ('4', 'S'), ('3', 'S'), ('2', 'D'), ('A', 'D'), ('K', 'D'), ('Q', 'D'), ('J', 'D'), ('T', 'D'), ('9', 'D'), ('8', 'D'), ('7', 'D'), ('6', 'D'), ('5', 'D'), ('4', 'D'), ('3', 'D'), ('2', 'D'), ('A', 'C'), ('K', 'C'), ('Q', 'C'), ('J', 'C'), ('T', 'C'), ('9', 'C'), ('8', 'C'), ('7', 'C'), ('6', 'C'), ('5', 'C'), ('4', 'C'), ('3', 'C'), ('2', 'C'), ('A', 'H'), ('K', 'H'), ('Q', 'H'), ('J', 'H'), ('T', 'H'), ('9', 'H'), ('8', 'H'), ('7', 'H'), ('6', 'H'), ('5', 'H'), ('4', 'H'), ('3', 'H'), ('2', 'H')]
       
-def evaluate(hand):
+def evaluate(actual_hand):
+    hand = actual_hand.copy()
     values = {'A': 14, 'K':13, 'Q':12, 'J':11, 'T':10, '9': 9, '8':8, '7':7, '6':6, '5':5, '4': 4, '3':3, '2':2}
     SF = 0
     FK = 0
@@ -81,54 +82,59 @@ def evaluate(hand):
         OP = 0
     return [SF, FK, FH, FL, ST, TK, TP, OP, HC]
 def compare(hand1, hand2):
-    for i in range(len(hand1)):
-        if (hand1[i]!=hand2[i]):
-            
+    hand1_eval = evaluate(hand1.copy())
+    hand2_eval = evaluate(hand2.copy())
+    for i in range(len(hand1_eval)):
+        if (hand1_eval[i]!=hand2_eval[i]):
             if i==2 or i == 6:
-                if hand1[i][0] > hand2[i][0]:
+                if hand1_eval[i][0] > hand2_eval[i][0]:
                     return hand1
-                elif hand1[i][0] < hand2[i][0]:
+                elif hand1_eval[i][0] < hand2_eval[i][0]:
                     return hand2
                 else:
-                    if hand1[i][1] > hand2[i][1]:
+                    if hand1_eval[i][1] > hand2_eval[i][1]:
                         return hand1
-                    elif hand1[i][1] < hand2[i][1]:
+                    elif hand1_eval[i][1] < hand2_eval[i][1]:
                         return hand2
             elif i==8:
-                for e in range(len(hand1[i])):
-                    if hand1[i][e] > hand2[i][e]:
+                for e in range(len(hand1_eval[i])):
+                    if hand1_eval[i][e] > hand2_eval[i][e]:
                         return hand1
-                    elif hand1[i][e] < hand2[i][e]:
+                    elif hand1_eval[i][e] < hand2_eval[i][e]:
                         return hand2
                 return None
             else:
-                if hand1[i] > hand2[i]:
+                if hand1_eval[i] > hand2_eval[i]:
                     return hand1
-                elif hand1[i] < hand2[i]:
+                elif hand1_eval[i] < hand2_eval[i]:
                     return hand2
                 return None
             break
             
             
 def find_best_hand(community, hole):
-    best_eval = evaluate(community + hole)
-    best_hand = community[:4] + hole
-    if len(community)==0:
+    total_cards = hole + community
+    num_cards = len(total_cards)
+    if (num_cards==2):
         return hole
-    elif len(community)==3:
-        return best_hand
-    elif len(community)==4:
-        if best_hand == compare(best_eval, evaluate(community[1:] + hole)):
-            return best_hand
-        return community[1:] + hole
-    elif len(community) == 5:
-        if (community + hole) == compare(best_eval, evaluate(community[1:] + hole)):
-            return community + hole
-        elif (community[1:4] + hole) == compare(best_eval, evaluate(community[1:4] + hole)):
-            return community[1:4] + hole
-        return community[2:] + hole
-    else:
-        return None
+    elif(num_cards==5):
+        return total_cards
+    elif(num_cards==6):
+        holder = total_cards[0:5]
+        for i in range(len(total_cards)-2, -1, -1):
+            print(i)
+            #print(holder)
+            card = total_cards[i]
+            total_cards.remove(card)
+            print(holder)
+            print(total_cards)
+            holder = compare(holder, total_cards.copy())
+            #print(total_cards)
+            total_cards.insert(i, card)
+        return holder
+    
+            
+    return num_cards
                    
       
 def main():
