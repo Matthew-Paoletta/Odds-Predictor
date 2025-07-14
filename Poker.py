@@ -191,30 +191,77 @@ def find_best_hand(hole, community):
         return holder
             
     return num_cards
-                   
+def translate(hand):
+    your_hand = ""
+    values = {14: 'Ace', 13:'King', 12:'Queen', 11:'Jack', 10:'Ten', 9:'Nine', 8:'Eight', 7:'Seven', 6:'Six', 5:'Five', 4: 'Four', 3:'Three', 2:'Two'}
+    hand_eval = evaluate(copy.deepcopy(hand))
+    if hand_eval[0]!=0:
+        if hand_eval[0]==14:
+            your_hand += "Royal Flush or an Ace High Straight Flush"
+        else:
+            your_hand += values[hand_eval[0]] + " High Straight Flush"
+    elif hand_eval[2]!=[0,0]:
+        your_hand += "Full House of " + values[hand_eval[2][0]] + "s over "+ values[hand_eval[2][1]] + "s"
+    elif hand_eval[3]!=0:
+        your_hand += values[hand_eval[3]] + " High Flush"
+    elif hand_eval[4]!=0:
+        your_hand += values[hand_eval[4]] + " High Straight"
+    else:
+        if hand_eval[1]!=0:
+            your_hand += "Four-of-a-Kind of " + values[hand_eval[1]] + "s"
+        if hand_eval[5]!=0:
+            your_hand += "Three-of-a-Kind of " + values[hand_eval[5]] + "s"
+        if hand_eval[6]!=[0,0]:
+            your_hand += "Two Pair of " + values[hand_eval[6][0]] + "s and "+ values[hand_eval[6][1]] + "s"
+        if hand_eval[7]!=0:
+            your_hand += "Pair of " + values[hand_eval[7]] + "s"
+        if len(hand_eval[8])!=0:
+            if your_hand=="":
+                your_hand += "High Card(s) "
+                for i in range(len(hand_eval[8])-1):
+                    your_hand += values[hand_eval[8][i]] + ", "
+                your_hand += values[hand_eval[8][-1]]
+            else:
+                your_hand += " and High Card(s) "
+                for i in range(len(hand_eval[8])-1):
+                    your_hand += values[hand_eval[8][i]] + ", "
+                your_hand += values[hand_eval[8][-1]]
+    return your_hand     
+        
+
+               
       
 def main():
     deck = [('A', 'S'), ('K', 'S'), ('Q', 'S'), ('J', 'S'), ('T', 'S'), ('9', 'S'), ('8', 'S'), ('7', 'S'), ('6', 'S'), ('5', 'S'), ('4', 'S'), ('3', 'S'), ('2', 'D'), ('A', 'D'), ('K', 'D'), ('Q', 'D'), ('J', 'D'), ('T', 'D'), ('9', 'D'), ('8', 'D'), ('7', 'D'), ('6', 'D'), ('5', 'D'), ('4', 'D'), ('3', 'D'), ('2', 'D'), ('A', 'C'), ('K', 'C'), ('Q', 'C'), ('J', 'C'), ('T', 'C'), ('9', 'C'), ('8', 'C'), ('7', 'C'), ('6', 'C'), ('5', 'C'), ('4', 'C'), ('3', 'C'), ('2', 'C'), ('A', 'H'), ('K', 'H'), ('Q', 'H'), ('J', 'H'), ('T', 'H'), ('9', 'H'), ('8', 'H'), ('7', 'H'), ('6', 'H'), ('5', 'H'), ('4', 'H'), ('3', 'H'), ('2', 'H')]
     p1 = deal(deck, 2)
     p2 = deal(deck, 2)
+    p3 = deal(deck, 2)
+    p4 = deal(deck, 2)
+    
     bh_p1 = []
     bh_p2 = []
+    bh_p3 = []
+    bh_p4 = []
+    players_hands = [bh_p1, bh_p2, bh_p3, bh_p4]
     board = []
     ex1 = [('T', 'S'), ('J', 'D'), ('A', 'S'), ('K', 'S'), ('9', 'D'), ('Q', 'C'), ('9', 'D')]
-    ex2 = [('A', 'S'), ('J', 'C'), ('K', 'D'), ('T', 'H'), ('Q', 'S')]
+    ex2 = [('A', 'S'), ('A', 'S'), ('A', 'S'), ('A', 'S'), ('K', 'C')]
     stages = ["Preflop:", "Flop", "Turn", "River"]
     for i in range(len(stages)):
         print("\n\n"+stages[i])
         print(board)
         print("Player 1 Hand:")
         print(p1)
-        #print(evaluate((p1+board)[0:5]))
         bh_p1 = find_best_hand(p1, board)
         print("Player 2 Hand: ")
         print(p2)
-        #print(evaluate((p2+board)[0:5]))
         bh_p2 = find_best_hand(p2, board)
-        #print(compare((p1+board)[0:5], (p2+board)[0:5]))
+        print("Player 3 Hand: ")
+        print(p3)
+        bh_p3 = find_best_hand(p3, board)
+        print("Player 4 Hand: ")
+        print(p4)
+        bh_p4 = find_best_hand(p4, board)
         
         if i == 0:
             board += deal(deck, 3)
@@ -222,13 +269,15 @@ def main():
             board += deal(deck, 1)
         else:
             break
-    better_hand = compare(bh_p1, bh_p2)
+    better_hand = compare(compare(compare(bh_p1, bh_p2), bh_p3), bh_p4)   
     if (better_hand == bh_p1):
-        print("Player 1 Wins")
-        print(better_hand)
+        print("Player 1 Wins with " + translate(better_hand))
     elif (better_hand == bh_p2):
-        print("Player 2 Wins")
-        print(better_hand)
+        print("Player 2 Wins with " + translate(better_hand))
+    elif (better_hand == bh_p3):
+        print("Player 3 Wins with " + translate(better_hand))
+    elif (better_hand == bh_p4):
+        print("Player 4 Wins with " + translate(better_hand))
     else:
         print("Chop Pot")
 
@@ -237,23 +286,22 @@ def main():
     '''
     ev_ex1 = evaluate(ex1)
     ev_ex2 = evaluate(ex2)
-    print("Hole Cards")
-    print(ex1[0:2])
-    print("Board")
-    print(ex1[2:7])
+    #print("Hole Cards")
+    #print(ex1[0:2])
+    #print("Board")
+    #print(ex1[2:7])
     #print("Preflop: ")
     #print(find_best_hand(ex1[0:2], []))
     #print("Flop: ")
     #print(find_best_hand(ex1[0:2], ex1[2:5]))
     #print("Turn: ")
     #print(find_best_hand(ex1[0:2], ex1[2:6]))
-    print("River: ")
-    print(find_best_hand(ex1[0:2], ex1[2:7]))
+    print("Your Hand: ")
+    print(translate(ex2))
     #print("Example Hand #2: ")
     #print(ex2[0:2])
     #print("Better One: ")
     #print(compare(ev_ex1, ev_ex2))
-    
     '''
     
     reshuffle_deck()
