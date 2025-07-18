@@ -227,6 +227,23 @@ def translate(hand):
                     your_hand += values[hand_eval[8][i]] + ", "
                 your_hand += values[hand_eval[8][-1]]
     return your_hand     
+def calculate_odds(deck, players_hands, curr_board):
+    copy_deck = copy.deepcopy(deck)
+    for i in range(len(copy_deck)):
+        #please fix this for preflop situations
+        card = copy_deck[i]
+        curr_board.append(card)
+        temp_hands = []
+        best_hand = []
+        for e in range(len(players_hands)):
+            temp_hands.append(find_best_hand(players_hands[e], curr_board))
+        for e in range(len(temp_hands)-1):
+            best_hand = compare(temp_hands[e], temp_hands[e+1])
+        
+        
+        print(best_hand)
+    
+        curr_board.remove(card)
         
 
                
@@ -248,6 +265,8 @@ def main():
     ex2 = [('A', 'S'), ('A', 'S'), ('A', 'S'), ('A', 'S'), ('K', 'C')]
     stages = ["Preflop:", "Flop", "Turn", "River"]
     for i in range(len(stages)):
+        if i == 2:
+            calculate_odds(deck, players_hands, board)
         print("\n\n"+stages[i])
         print(board)
         print("Player 1 Hand:")
@@ -280,6 +299,8 @@ def main():
         print("Player 4 Wins with " + translate(better_hand))
     else:
         print("Chop Pot")
+        
+    
 
     
     
