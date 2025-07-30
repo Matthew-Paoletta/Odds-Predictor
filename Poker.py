@@ -229,6 +229,10 @@ def translate(hand):
     return your_hand     
 def calculate_odds(deck, players_hands, curr_board):
     copy_deck = copy.deepcopy(deck)
+    def helper():
+        return 
+    for i in range(5-len(curr_board)):
+        
     for i in range(len(copy_deck)):
         #please fix this for preflop situations
         card = copy_deck[i]
