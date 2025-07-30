@@ -232,7 +232,7 @@ def calculate_odds(deck, players_hands, curr_board):
     def helper():
         return 
     for i in range(5-len(curr_board)):
-        
+        print("Hello")
     for i in range(len(copy_deck)):
         #please fix this for preflop situations
         card = copy_deck[i]
